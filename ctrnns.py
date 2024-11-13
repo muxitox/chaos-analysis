@@ -50,9 +50,9 @@ Jacobian_Func = jacobian(step)
 dx = np.identity(N)
 S = np.zeros(N)
 
-transient_steps = 400000
+transient_steps = 10
 
-running_steps = 400000
+running_steps = 10
 T = transient_steps + running_steps
 
 y=np.zeros((N, running_steps))
@@ -90,22 +90,23 @@ plt.title("Trajectories")
 
 ax = plt.figure().add_subplot(projection='3d')
 ax.plot(y[0,:], y[1,:], y[2,:])
-plt.show()
-
 
 print("Lyapunov exponents", S)
 
 plt.figure()
 plt.plot(S_i[0,:])
-plt.title(fr"$\hat{{\lambda_0}}/M = {S[0]}$")
+plt.title(fr"$\hat{{\lambda^0}}/M = {S[0]}$")
+plt.ylabel(fr"$\sum\hat{{\lambda^0_i}}$")
 plt.tight_layout()
 plt.figure()
 plt.plot(S_i[1,:])
-plt.title(fr"$\hat{{\lambda_1}}/M = {S[1]}$")
+plt.title(fr"$\hat{{\lambda^1}}/M = {S[1]}$")
+plt.ylabel(fr"$\sum\hat{{\lambda^1_i}}$")
 plt.tight_layout()
 plt.figure()
 plt.plot(S_i[2,:])
-plt.title(fr"$\hat{{\lambda_2}}/M = {S[2]}$")
+plt.title(fr"$\hat{{\lambda^2}}/M = {S[2]}$")
+plt.ylabel(fr"$\sum\hat{{\lambda^2_i}}$")
 plt.tight_layout()
 plt.show()
 
