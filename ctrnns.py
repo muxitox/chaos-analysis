@@ -24,7 +24,7 @@ def step(y_0):
 
 N=3
 
-mode = "chaotic"
+mode = "periodic"
 tau = np.ones(N)
 if mode == "periodic":
     W = np.ones((N,N))
@@ -41,7 +41,6 @@ else:
         tau[1] = 2.5
 
 
-T=400000
 y_0=np.random.randn(N)*0.1
 
 dt = 0.01
@@ -51,8 +50,14 @@ Jacobian_Func = jacobian(step)
 dx = np.identity(N)
 S = np.zeros(N)
 
-transient_steps = 100000
-y=np.zeros((N,T-transient_steps))
+transient_steps = 400000
+
+running_steps = 400000
+T = transient_steps + running_steps
+
+y=np.zeros((N, running_steps))
+# Debugging variable
+S_i = np.zeros((N, running_steps))
 
 
 for t in range(T):
@@ -75,13 +80,33 @@ for t in range(T):
 
         S += dS
 
+        S_i[:, t-transient_steps] = S
+
+S /= running_steps
+
+plt.figure()
+plt.plot(y.T)
+plt.title("Trajectories")
+
+ax = plt.figure().add_subplot(projection='3d')
+ax.plot(y[0,:], y[1,:], y[2,:])
+plt.show()
+
 
 print("Lyapunov exponents", S)
 
 plt.figure()
-plt.plot(y.T)
+plt.plot(S_i[0,:])
+plt.title(fr"$\hat{{\lambda_0}}/M = {S[0]}$")
+plt.tight_layout()
+plt.figure()
+plt.plot(S_i[1,:])
+plt.title(fr"$\hat{{\lambda_1}}/M = {S[1]}$")
+plt.tight_layout()
+plt.figure()
+plt.plot(S_i[2,:])
+plt.title(fr"$\hat{{\lambda_2}}/M = {S[2]}$")
+plt.tight_layout()
 
-ax = plt.figure().add_subplot(projection='3d')
-ax.plot(y[0,:], y[1,:], y[2,:])
-plt.show()    
+
 
