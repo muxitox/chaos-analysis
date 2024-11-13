@@ -50,9 +50,9 @@ Jacobian_Func = jacobian(step)
 dx = np.identity(N)
 S = np.zeros(N)
 
-transient_steps = 10
+transient_steps = 400000
 
-running_steps = 10
+running_steps = 400000
 T = transient_steps + running_steps
 
 y=np.zeros((N, running_steps))
