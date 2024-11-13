@@ -24,18 +24,24 @@ def step(y_0):
 
 N=3
 
-W = np.array([[5.422,-0.24,0.535],[-0.018,4.59,-2.25],[2.75,1.21,3.885]])
-th = np.array([-4.108,-2.787,-1.114])
-
-params = anp.vstack([W, th])
-
-params_flatten = anp.reshape(params, (4*3))
-
-tau = np.array([1,2.5,1])
+mode = "chaotic"
+tau = np.ones(N)
+if mode == "periodic":
+    W = np.ones((N,N))
+    di = np.diag_indices(N)
+    W[di] = 10
+    th = np.ones(N) * -6
+else:
+    # saddle_limit
+    W = np.array([[5.422, -0.24, 0.535], [-0.018, 4.59, -2.25], [2.75, 1.21, 3.885]])
+    th = np.array([-4.108, -2.787, -1.114])
+    if mode == "periodic_limit":
+        tau[2] = 1.92
+    elif mode == "chaotic":
+        tau[2] = 2.5
 
 
 T=400000
-y=np.zeros((N,T))
 y_0=np.random.randn(N)*0.1
 
 dt = 0.01
@@ -45,11 +51,16 @@ Jacobian_Func = jacobian(step)
 dx = np.identity(N)
 S = np.zeros(N)
 
+transient_steps = 100000
+y=np.zeros((N,T-transient_steps))
+
+
 for t in range(T):
     y_0 = step(y_0)
-    y[:, t] = y_0
 
-    if t  > 100000:
+    if t  >= transient_steps:
+        y[:, t - transient_steps] = y_0
+
         J = Jacobian_Func(y_0)
 
         # perturbation
@@ -59,15 +70,13 @@ for t in range(T):
         d_exp = np.absolute(np.diag(R))
         dS = np.log(d_exp)
 
-
         # Q is orthogonal so we can use it as the perturbation for the next step
         dx = Q
 
         S += dS
 
-    print()
 
-print(S)
+print("Lyapunov exponents", S)
 
 plt.figure()
 plt.plot(y.T)
