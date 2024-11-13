@@ -36,9 +36,9 @@ else:
     W = np.array([[5.422, -0.24, 0.535], [-0.018, 4.59, -2.25], [2.75, 1.21, 3.885]])
     th = np.array([-4.108, -2.787, -1.114])
     if mode == "periodic_limit":
-        tau[2] = 1.92
+        tau[1] = 1.92
     elif mode == "chaotic":
-        tau[2] = 2.5
+        tau[1] = 2.5
 
 
 T=400000
