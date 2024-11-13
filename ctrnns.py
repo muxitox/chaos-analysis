@@ -107,6 +107,7 @@ plt.figure()
 plt.plot(S_i[2,:])
 plt.title(fr"$\hat{{\lambda_2}}/M = {S[2]}$")
 plt.tight_layout()
+plt.show()
 
 
 
