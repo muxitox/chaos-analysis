@@ -22,9 +22,48 @@ def step(y_0):
     y = y_0 + dt / tau * (-y_0 + 0.5 * anp.tanh(0.5 * (W.T @ (y_0 + 0.5) + th)))
     return y
 
+def lyapunov(y_0, running_steps, transient_steps):
+
+    Jacobian_Func = jacobian(step)
+
+    dx = np.identity(N)
+    S = np.zeros(N)
+
+    T = transient_steps + running_steps
+
+    y = np.zeros((N, running_steps))
+    # Debugging variable
+    S_i = np.zeros((N, running_steps))
+
+    for t in range(T):
+        y_0 = step(y_0)
+
+        if t >= transient_steps:
+            y[:, t - transient_steps] = y_0
+
+            J = Jacobian_Func(y_0)
+
+            # perturbation
+            dx = np.matmul(J, dx)
+
+            Q, R = np.linalg.qr(dx)
+            d_exp = np.absolute(np.diag(R))
+            dS = np.log(d_exp)
+
+            # Q is orthogonal so we can use it as the perturbation for the next step
+            dx = Q
+
+            S += dS
+
+            S_i[:, t - transient_steps] = S
+
+    S /= running_steps
+
+    return y, S, S_i
+
 N=3
 
-mode = "periodic"
+mode = "chaotic"
 tau = np.ones(N)
 if mode == "periodic":
     W = np.ones((N,N))
@@ -40,49 +79,13 @@ else:
     elif mode == "chaotic":
         tau[1] = 2.5
 
-
-y_0=np.random.randn(N)*0.1
-
 dt = 0.01
 
-Jacobian_Func = jacobian(step)
-
-dx = np.identity(N)
-S = np.zeros(N)
-
+y_0 = np.random.randn(N)*0.1
 transient_steps = 400000
-
 running_steps = 400000
-T = transient_steps + running_steps
 
-y=np.zeros((N, running_steps))
-# Debugging variable
-S_i = np.zeros((N, running_steps))
-
-
-for t in range(T):
-    y_0 = step(y_0)
-
-    if t  >= transient_steps:
-        y[:, t - transient_steps] = y_0
-
-        J = Jacobian_Func(y_0)
-
-        # perturbation
-        dx = np.matmul(J, dx)
-
-        Q, R = np.linalg.qr(dx)
-        d_exp = np.absolute(np.diag(R))
-        dS = np.log(d_exp)
-
-        # Q is orthogonal so we can use it as the perturbation for the next step
-        dx = Q
-
-        S += dS
-
-        S_i[:, t-transient_steps] = S
-
-S /= running_steps
+y, S, S_i = lyapunov(y_0, running_steps, transient_steps)
 
 plt.figure()
 plt.plot(y.T)
